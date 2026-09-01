@@ -12,7 +12,7 @@
     "bin"
   ],
   "scripts": {
-    "_build": "tsc -p ."
+    "build": "tsc -p ."
   },
   "dependencies": {
     "@git-agent/core": "*",

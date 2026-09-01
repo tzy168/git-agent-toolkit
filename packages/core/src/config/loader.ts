@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { config as loadDotenv } from 'dotenv';
-import yaml from 'js-yaml';
+import { load as loadYaml } from 'js-yaml';
 
 import { GitAgentError } from '../errors.js';
 import { absPosix } from '../paths.js';
@@ -65,7 +65,7 @@ async function readLayer(file: string): Promise<GitAgentConfig | null> {
 
   let raw: unknown;
   try {
-    raw = yaml.load(rawText);
+    raw = loadYaml(rawText);
   } catch (e) {
     throw new GitAgentError(
       'CONFIG_INVALID',

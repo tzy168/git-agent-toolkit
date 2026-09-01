@@ -37,12 +37,10 @@ export async function withRetry<T>(fn: () => Promise<T>, opts: RetryOptions = {}
   const baseDelayMs = opts.baseDelayMs ?? 800;
   const shouldRetry = opts.shouldRetry ?? isRetryableError;
 
-  let lastError: unknown;
   for (let attempt = 0; ; attempt++) {
     try {
       return await fn();
     } catch (e) {
-      lastError = e;
       if (attempt >= retries || !shouldRetry(e, attempt)) throw e;
       const delayMs = baseDelayMs * 2 ** attempt;
       opts.onRetry?.(e, attempt, delayMs);

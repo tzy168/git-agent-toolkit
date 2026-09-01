@@ -7,7 +7,7 @@
 ```bash
 npm install          # 根目录一次装完两个 workspace
 npm run build        # tsc 直出 dist + 拷贝 prompts/*.md
-npm link             # 全局注册 git-agent 命令
+npm run link         # 全局注册 git-agent 命令（npm link -w git-agent-toolkit）
 ```
 
 配置 API Key（二选一）：

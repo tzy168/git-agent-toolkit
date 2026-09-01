@@ -1,87 +1,110 @@
 import { z } from 'zod';
 
 import { DEFAULT_CONFIG } from './defaults.js';
-import type { GitAgentConfig } from './types.js';
 
 /* ------------------------------------------------------------------ */
 /* 各节 schema：全部 partial，逐字段校验用户手写的 yml                    */
 /* ------------------------------------------------------------------ */
 
-const GitSection = z.object({
-  defaultBase: z.string().min(1),
-  includeAuthors: z.array(z.string()),
-});
+const GitSection = z
+  .object({
+    defaultBase: z.string().min(1),
+    includeAuthors: z.array(z.string()),
+  })
+  .partial();
 
-const ReviewSection = z.object({
-  ignorePaths: z.array(z.string()),
-  focusDimensions: z.array(z.string()),
-  contextPaths: z.array(z.string()),
-});
+const ReviewSection = z
+  .object({
+    ignorePaths: z.array(z.string()),
+    focusDimensions: z.array(z.string()),
+    contextPaths: z.array(z.string()),
+  })
+  .partial();
 
-const TestPlanSection = z.object({
-  priorityLevels: z.array(z.enum(['P0', 'P1', 'P2'])),
-  detectExisting: z.boolean(),
-  focus: z.array(z.string()),
-});
+const TestPlanSection = z
+  .object({
+    priorityLevels: z.array(z.enum(['P0', 'P1', 'P2'])),
+    detectExisting: z.boolean(),
+    focus: z.array(z.string()),
+  })
+  .partial();
 
-const ImpactSection = z.object({
-  maxDepth: z.number().int().min(1).max(2),
-  symbolParser: z.enum(['ts-morph', 'grep']),
-  includeTests: z.boolean(),
-});
+const ImpactSection = z
+  .object({
+    maxDepth: z.number().int().min(1).max(2),
+    symbolParser: z.enum(['ts-morph', 'grep']),
+    includeTests: z.boolean(),
+  })
+  .partial();
 
-const PrDescSection = z.object({
-  templatePaths: z.array(z.string()),
-  includeReviewSummary: z.boolean(),
-});
+const PrDescSection = z
+  .object({
+    templatePaths: z.array(z.string()),
+    includeReviewSummary: z.boolean(),
+  })
+  .partial();
 
-const CommitSection = z.object({
-  convention: z.enum(['conventional', 'angular', 'custom']),
-  types: z.array(z.string().min(1)),
-  maxSubjectLength: z.number().int().min(10).max(200),
-  learnFromLog: z.number().int().min(0).max(500),
-  candidates: z.number().int().min(1).max(10),
-  hooks: z.object({
+const CommitSection = z
+  .object({
+    convention: z.enum(['conventional', 'angular', 'custom']),
+    types: z.array(z.string().min(1)),
+    maxSubjectLength: z.number().int().min(10).max(200),
+    learnFromLog: z.number().int().min(0).max(500),
+    candidates: z.number().int().min(1).max(10),
+    hooks: z
+      .object({
+        enabled: z.boolean(),
+        skipEnvVar: z.string(),
+      })
+      .partial(),
+  })
+  .partial();
+
+const LlmSection = z
+  .object({
+    provider: z.literal('deepseek'),
+    model: z.object({ fast: z.string().min(1), strong: z.string().min(1) }).partial(),
+    reasoningEffort: z.enum(['non-think', 'high', 'max']),
+    maxInputTokens: z.number().int().positive(),
+    chunkTargetTokens: z.number().int().positive(),
+    concurrency: z.number().int().min(1).max(16),
+    timeoutMs: z.number().int().positive(),
+    maxRetries: z.number().int().min(0).max(5),
+  })
+  .partial();
+
+const SecuritySection = z
+  .object({
+    redact: z.boolean(),
+    redactEmails: z.boolean(),
+    blockedPaths: z.array(z.string()),
+  })
+  .partial();
+
+const OutputSection = z
+  .object({
+    dir: z.string(),
+    format: z.enum(['markdown', 'html', 'json']),
+    language: z.string(),
+  })
+  .partial();
+
+const DiffSection = z
+  .object({
+    smallThresholdTokens: z.number().int().positive(),
+    largeThresholdTokens: z.number().int().positive(),
+    enrichThresholdLines: z.number().int().min(0),
+    enrichMaxTokens: z.number().int().min(0),
+  })
+  .partial();
+
+const CacheSection = z
+  .object({
     enabled: z.boolean(),
-    skipEnvVar: z.string(),
-  }),
-});
-
-const LlmSection = z.object({
-  provider: z.literal('deepseek'),
-  model: z.object({ fast: z.string().min(1), strong: z.string().min(1) }),
-  reasoningEffort: z.enum(['non-think', 'high', 'max']),
-  maxInputTokens: z.number().int().positive(),
-  chunkTargetTokens: z.number().int().positive(),
-  concurrency: z.number().int().min(1).max(16),
-  timeoutMs: z.number().int().positive(),
-  maxRetries: z.number().int().min(0).max(5),
-});
-
-const SecuritySection = z.object({
-  redact: z.boolean(),
-  redactEmails: z.boolean(),
-  blockedPaths: z.array(z.string()),
-});
-
-const OutputSection = z.object({
-  dir: z.string(),
-  format: z.enum(['markdown', 'html', 'json']),
-  language: z.string(),
-});
-
-const DiffSection = z.object({
-  smallThresholdTokens: z.number().int().positive(),
-  largeThresholdTokens: z.number().int().positive(),
-  enrichThresholdLines: z.number().int().min(0),
-  enrichMaxTokens: z.number().int().min(0),
-});
-
-const CacheSection = z.object({
-  enabled: z.boolean(),
-  maxAgeDays: z.number().int().min(0),
-  dir: z.string(),
-});
+    maxAgeDays: z.number().int().min(0),
+    dir: z.string(),
+  })
+  .partial();
 
 /** 用户配置 schema：所有字段可选 */
 export const ConfigSchema = z
@@ -155,5 +178,5 @@ export function validateConfig(raw: unknown): ValidateResult {
   if (unknown.length > 0) {
     return { ok: false, errors: unknown };
   }
-  return { ok: true, data: parsed.data as GitAgentConfig };
+  return { ok: true, data: parsed.data };
 }

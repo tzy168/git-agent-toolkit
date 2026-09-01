@@ -1,5 +1,5 @@
 import { readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, type Dirent } from 'node:fs';
 import path from 'node:path';
 
 import type { Logger } from '../types.js';
@@ -50,7 +50,7 @@ export function createDiskCache(root: string, opts: DiskCacheOptions = {}): Disk
     root: base,
     enabled,
 
-    async read<T>(ns, key): Promise<T | null> {
+    async read<T>(ns: string, key: string): Promise<T | null> {
       if (!enabled) return null;
       const file = fileFor(ns, key);
       try {
@@ -65,7 +65,7 @@ export function createDiskCache(root: string, opts: DiskCacheOptions = {}): Disk
       }
     },
 
-    async write<T>(ns, key, value): Promise<void> {
+    async write<T>(ns: string, key: string, value: T): Promise<void> {
       if (!enabled) return;
       const file = fileFor(ns, key);
       try {
@@ -81,7 +81,7 @@ export function createDiskCache(root: string, opts: DiskCacheOptions = {}): Disk
       const targets = ns ? [path.join(base, ns)] : [base];
       let removed = 0;
       for (const dir of targets) {
-        let entries: string[];
+        let entries: Dirent[];
         try {
           entries = await readdir(dir, { withFileTypes: true });
         } catch {

@@ -13,6 +13,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "link": "npm link -w git-agent-toolkit",
     "dev": "tsx packages/cli/src/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
