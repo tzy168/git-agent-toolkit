@@ -7,7 +7,7 @@
 ```bash
 npm install          # 根目录一次装完两个 workspace
 npm run build        # tsc 直出 dist + 拷贝 prompts/*.md
-npm run link         # 全局注册 git-agent 命令（npm link -w git-agent-toolkit）
+npm run link         # 全局注册 gat 命令（git-agent 仍可用）
 ```
 
 配置 API Key（二选一）：
@@ -22,14 +22,14 @@ cp .env.example .env
 ## 七个命令
 
 ```bash
-git-agent commit                       # 暂存区 → 3 个提交信息候选 → 选一个提交
-git-agent weekly --note "本周重点是重构"  # 本周 log → 周报
-git-agent review --base origin/main    # 代码审查（分片 + 汇总 + 跨文件）
-git-agent test-plan --base origin/main # 测试计划（P0/P1/P2）
-git-agent impact --base origin/main    # 影响面分析（反向符号搜索）
-git-agent pr-desc --base origin/main   # PR 描述（按仓库模板填充）
-git-agent spec --base origin/main      # 技术方案反推
-git-agent ask "帮我生成本周周报"         # 自然语言挑命令
+gat commit                       # 暂存区 → 3 个提交信息候选 → 选一个提交
+gat weekly --note "本周重点是重构"  # 本周 log → 周报
+gat review --base origin/main    # 代码审查（分片 + 汇总 + 跨文件）
+gat test-plan --base origin/main # 测试计划（P0/P1/P2）
+gat impact --base origin/main    # 影响面分析（反向符号搜索）
+gat pr-desc --base origin/main   # PR 描述（按仓库模板填充）
+gat spec --base origin/main      # 技术方案反推
+gat ask "帮我生成本周周报"         # 自然语言挑命令
 ```
 
 通用参数：`--base` `--head` `--out` `--stdout` `--json` `--dry-run` `--no-cache` `-v` `--quiet`

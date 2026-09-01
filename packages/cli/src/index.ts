@@ -13,7 +13,7 @@ export async function main(): Promise<void> {
 
   const program = new Command();
   program
-    .name('git-agent')
+    .name('gat')
     .description('基于 DeepSeek 的个人 Git 工作流工具箱')
     .version('0.1.0')
     .showHelpAfterError()

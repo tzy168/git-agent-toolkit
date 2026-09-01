@@ -5,6 +5,7 @@
   "type": "module",
   "license": "MIT",
   "bin": {
+    "gat": "bin/git-agent.js",
     "git-agent": "bin/git-agent.js"
   },
   "files": [
