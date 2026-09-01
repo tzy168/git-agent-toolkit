@@ -22,6 +22,7 @@ export interface CliOpts {
   quiet?: boolean;
   model?: string;
   prefill?: boolean;
+  lang?: string;
 }
 
 function logLevel(opts: CliOpts): LogLevel {
@@ -39,6 +40,7 @@ export async function buildContext(opts: CliOpts): Promise<FeatureContext> {
     cliOverrides.llm = { model: { fast: opts.model, strong: opts.model } };
   }
   if (opts.cache === false) cliOverrides.cache = { enabled: false };
+  if (opts.lang) cliOverrides.commit = { language: opts.lang };
 
   const config = await loadConfig({ cwd: process.cwd(), cliOverrides });
   const git = await createGitProvider(process.cwd());

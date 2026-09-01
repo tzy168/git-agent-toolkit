@@ -25,6 +25,7 @@ export const commitFeature: Feature<CommitInput, CommitOutput> = {
   description: '根据暂存区生成 Conventional Commit 候选并提交',
   params: [
     { flag: '--prefill', description: '钩子模式：把首选信息写到 --out，不交互、不真正 commit', type: 'boolean' },
+    { flag: '--lang <code>', description: '提交说明语言（默认 zh-CN）', type: 'string' },
   ],
   outputSchema: CommitOutputSchema,
 
@@ -40,6 +41,7 @@ export const commitFeature: Feature<CommitInput, CommitOutput> = {
       convention: cfg.convention,
       maxSubjectLength: String(cfg.maxSubjectLength),
       candidates: String(cfg.candidates),
+      language: languageLabel(cfg.language),
     };
     return [
       {
@@ -69,3 +71,12 @@ export const commitFeature: Feature<CommitInput, CommitOutput> = {
     return lines.join('\n\n');
   },
 };
+
+/** zh-CN / en 等写成模型读得懂的语言名 */
+function languageLabel(code: string): string {
+  const c = code.trim().toLowerCase();
+  if (c === 'zh' || c === 'zh-cn' || c === 'zh-hans' || c === 'cn' || c === '中文') return '简体中文';
+  if (c === 'zh-tw' || c === 'zh-hant') return '繁体中文';
+  if (c === 'en' || c === 'en-us' || c === 'en-gb') return 'English';
+  return code;
+}

@@ -64,6 +64,7 @@ export const DEFAULT_CONFIG: ResolvedConfig = {
     maxSubjectLength: 72,
     learnFromLog: 50,
     candidates: 3,
+    language: 'zh-CN',
     hooks: { enabled: false, skipEnvVar: 'GIT_AGENT_DISABLE' },
   },
 

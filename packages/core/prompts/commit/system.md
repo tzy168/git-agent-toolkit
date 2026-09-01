@@ -2,9 +2,10 @@
 
 规则：
 - 规范：{{convention}}（默认 Conventional Commits）
-- type 只能从：{{types}}
-- subject 不超过 {{maxSubjectLength}} 个字符，不以句号结尾，祈使语气，英文或中文与仓库近期风格保持一致
+- type 只能从：{{types}}（type 本身保持英文 token，如 feat / fix）
+- subject 与 body 必须使用 {{language}} 书写（zh-CN = 简体中文）。近期英文 subject 只学 type/语气，不要改语言
+- subject 不超过 {{maxSubjectLength}} 个字符，不以句号结尾，祈使语气
 - 只描述这次暂存区实际改动，禁止编造未出现的文件或行为
 - 统计数字（文件数、增删行）以用户消息里的 STATS 为准，不要自己加减
-- 若改动明显混了多件无关事，在 splitHint 里用一句话建议拆分；否则 splitHint 为 null
+- 若改动明显混了多件无关事，在 splitHint 里用一句话建议拆分（同样用 {{language}}）；否则 splitHint 为 null
 - 产出恰好 {{candidates}} 个风格略有差异的候选（不同 type/scope 或不同粒度），供用户选一个

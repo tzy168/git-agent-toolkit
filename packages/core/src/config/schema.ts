@@ -51,6 +51,7 @@ const CommitSection = z
     maxSubjectLength: z.number().int().min(10).max(200),
     learnFromLog: z.number().int().min(0).max(500),
     candidates: z.number().int().min(1).max(10),
+    language: z.string().min(1),
     hooks: z
       .object({
         enabled: z.boolean(),

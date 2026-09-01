@@ -45,6 +45,8 @@ export interface ResolvedConfig {
     maxSubjectLength: number;
     learnFromLog: number;
     candidates: number;
+    /** 提交说明（subject/body）所用语言，默认 zh-CN */
+    language: string;
     hooks: { enabled: boolean; skipEnvVar: string };
   };
   llm: {
