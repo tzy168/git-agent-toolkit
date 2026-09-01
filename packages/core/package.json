@@ -1,0 +1,32 @@
+{
+  "name": "@git-agent/core",
+  "version": "0.1.0",
+  "description": "git-agent-toolkit 的核心逻辑：git/diff 采集、prompt 组装、LLM 适配、渲染落盘",
+  "type": "module",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p . && node ../../scripts/copy-assets.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "js-yaml": "^5.4.1",
+    "openai": "^7.8.0",
+    "picomatch": "^4.0.7",
+    "simple-git": "^3.36.0",
+    "zod": "^4.5.4"
+  },
+  "optionalDependencies": {
+    "ts-morph": "^28.0.0"
+  }
+}

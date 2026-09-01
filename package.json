@@ -1,0 +1,28 @@
+{
+  "name": "git-agent-toolkit-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "基于 DeepSeek 的个人 Git 工作流工具箱（npm workspaces 根）",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/core",
+    "packages/cli"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev": "tsx packages/cli/src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p packages/core/tsconfig.test.json && tsc -p packages/cli --noEmit",
+    "clean": "node -e \"const{rmSync}=require('fs');for(const p of ['packages/core/dist','packages/cli/dist'])rmSync(p,{recursive:true,force:true})\""
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
+  }
+}

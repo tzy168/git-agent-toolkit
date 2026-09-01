@@ -1,0 +1,180 @@
+classDiagram
+    %% ===== 注册中心与 Feature =====
+    class Feature {
+        +string id
+        +string name
+        +string description
+        +ParamDef[] params
+        +ZodType outputSchema
+        +collect(ctx, input) CollectedData
+        +buildSteps(data, ctx) PromptStep[]
+        +reduce(results, data, ctx) unknown
+        +render(output, ctx, data) string
+        +exitCode(output) number
+    }
+
+    class FeatureContext {
+        +RepoInfo repo
+        +GitProvider git
+        +LLMProvider llm
+        +ResolvedConfig config
+        +Logger logger
+        +Redactor redactor
+        +DiskCache cache
+        +onProgress(event) void
+    }
+
+    class PromptStep {
+        <<union>>
+    }
+    class SingleStep {
+        +string kind
+        +string id
+        +string system
+        +ZodType schema
+        +ModelTier model
+        +ThinkingMode thinking
+        +runIf(results, data) boolean
+        +buildUser(results, data, ctx) string
+    }
+    class MapStep {
+        +string kind
+        +string id
+        +string system
+        +ZodType schema
+        +number concurrency
+        +runIf(results, data) boolean
+        +mapOver(results, data) unknown[]
+        +buildUserItem(item, i, results, data, ctx) string
+    }
+
+    %% ===== 采集数据 =====
+    class CollectedData {
+        +CollectKind kind
+        +string fingerprint
+        +RepoInfo repo
+        +string mergeBase
+        +FileChange[] files
+        +string diffText
+        +DiffStats stats
+        +CommitInfo[] commits
+        +DiffScale scale
+        +DiffChunk[] chunks
+        +Record enriched
+        +Record extra
+        +string[] degraded
+    }
+    class FileChange {
+        +string path
+        +string oldPath
+        +FileStatus status
+        +number additions
+        +number deletions
+        +boolean isBinary
+        +boolean isGenerated
+        +string language
+        +Hunk[] hunks
+    }
+    class Hunk {
+        +number oldStart
+        +number newStart
+        +string context
+        +DiffLine[] lines
+    }
+    class DiffChunk {
+        +string id
+        +string module
+        +string[] paths
+        +string text
+        +number estTokens
+    }
+
+    %% ===== 基础设施接口 =====
+    class GitProvider {
+        <<interface>>
+        +getRepoInfo() RepoInfo
+        +resolveRef(ref) string
+        +getMergeBase(base, head) string
+        +getBranchDiff(base, head) RawDiff
+        +getStagedDiff() RawDiff
+        +getLog(opts) CommitInfo[]
+        +getRecentSubjects(n) string[]
+        +getFileAt(ref, path) string
+        +listRepoFiles() string[]
+        +searchText(pattern, opts) GrepHit[]
+        +commit(message) void
+    }
+    class CliGitProvider {
+        -simple_git git
+    }
+
+    class LLMProvider {
+        <<interface>>
+        +complete(req) LLMResponse
+    }
+    class DeepSeekProvider {
+        -OpenAI client
+        -ResolvedConfig config
+        +complete(req) LLMResponse
+    }
+    class LLMResponse {
+        +string text
+        +string model
+        +Usage usage
+    }
+
+    class Enricher {
+        <<interface>>
+        +string mode
+        +enrich(files, opts) Record
+    }
+    class TsMorphEnricher
+    class RegexEnricher
+
+    class Redactor {
+        <<interface>>
+        +redact(text) string
+        +isBlocked(path) boolean
+    }
+    class DiskCache {
+        <<interface>>
+        +read(ns, key) unknown
+        +write(ns, key, value) void
+        +clear(ns) number
+        +stats() CacheStats
+    }
+
+    class ResolvedConfig {
+        +string repoRoot
+        +GitSection git
+        +LlmSection llm
+        +DiffSection diff
+        +SecuritySection security
+        +OutputSection output
+    }
+
+    %% ===== 关系 =====
+    PromptStep <|-- SingleStep
+    PromptStep <|-- MapStep
+    GitProvider <|.. CliGitProvider
+    LLMProvider <|.. DeepSeekProvider
+    Enricher <|.. TsMorphEnricher
+    Enricher <|.. RegexEnricher
+
+    Feature ..> FeatureContext : 使用
+    Feature ..> CollectedData : 产出
+    Feature ..> PromptStep : 声明
+    Feature ..> ResolvedConfig : 读取
+    FeatureContext o-- GitProvider
+    FeatureContext o-- LLMProvider
+    FeatureContext o-- DiskCache
+    FeatureContext o-- Redactor
+    FeatureContext o-- ResolvedConfig
+    CollectedData o-- FileChange
+    CollectedData o-- DiffChunk
+    FileChange o-- Hunk
+    CollectedData ..> DiskCache : 按 fingerprint 缓存
+    CliGitProvider ..> CollectedData : diff 原始文本
+    RegexEnricher ..> GitProvider : getFileAt / searchText
+    TsMorphEnricher ..> GitProvider : getFileAt
+    DeepSeekProvider ..> LLMResponse

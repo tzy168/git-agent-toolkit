@@ -1,0 +1,110 @@
+sequenceDiagram
+    autonumber
+    actor U as 用户
+    participant CLI as cli/index.ts
+    participant REG as features/registry
+    participant CTX as cli/context.ts
+    participant CFG as config/loader
+    participant GIT as git/cli-provider
+    participant CA as cache/disk-cache
+    participant COL as shared/collect-branch
+    participant PAR as diff/parser+filter
+    participant SPL as diff/splitter
+    participant ENR as diff/enricher
+    participant FEAT as features/review
+    participant PIPE as features/pipeline
+    participant PRM as prompt/loader+layout
+    participant DS as llm/deepseek
+    participant ZD as zod schema
+    participant OUT as output/writer
+
+    U->>CLI: git-agent review --base origin/main
+    CLI->>REG: registerAll()
+    REG-->>CLI: 7 个 Feature
+    CLI->>REG: getFeature('review')
+    CLI->>CTX: buildContext(argv)
+    CTX->>CFG: loadConfig({cwd, cliOverrides})
+    CFG-->>CTX: ResolvedConfig（defaults → 全局 → 仓库 → CLI）
+    CTX->>GIT: createGitProvider(cwd)
+    CTX-->>CLI: FeatureContext
+
+    Note over CLI,COL: 阶段 1：采集（可缓存）
+    CLI->>FEAT: collect(ctx, {base, head})
+    FEAT->>COL: collectBranchDiff(ctx, {base, head})
+    COL->>GIT: resolveRef(base) / resolveRef(head)
+    COL->>GIT: getMergeBase(base, head)
+    GIT-->>COL: mergeBase sha
+    COL->>COL: fingerprint = sha1(mergeBase + headSha + filterRules)
+    COL->>CA: read('collect', 'branchdiff:' + fingerprint)
+    alt 缓存命中且未 --no-cache
+        CA-->>COL: CollectedData
+        COL-->>FEAT: CollectedData（日志：命中采集缓存）
+    else 未命中
+        COL->>GIT: getBranchDiff(base, head)
+        Note right of GIT: git diff base...head（三点语法，铁律）
+        GIT-->>COL: {text, numstat}
+        COL->>PAR: parseDiff(text) → FileChange[]
+        COL->>PAR: filterFiles(files, {ignorePaths, blockedPaths})
+        PAR-->>COL: 过滤后 files + stats
+        COL->>SPL: estimateTokens(diffText) → gradeScale()
+        SPL-->>COL: scale = small | medium | large
+        COL->>SPL: splitIntoChunks(files, cfg)
+        SPL-->>COL: DiffChunk[]（同目录/同模块聚合）
+        opt scale != small
+            COL->>ENR: enrich(改动行数 > 阈值 的文件)
+            Note right of ENR: 懒加载 ts-morph；不可用则正则降级
+            ENR-->>COL: EnrichmentMap
+        end
+        COL->>CA: write('collect', fingerprint, CollectedData)
+        COL-->>FEAT: CollectedData
+    end
+    FEAT-->>CLI: CollectedData
+
+    Note over CLI,PIPE: 阶段 2：组装 + LLM（map-reduce）
+    CLI->>PIPE: runPipeline(reviewFeature, data, ctx)
+    PIPE->>FEAT: buildSteps(data, ctx)
+    FEAT->>PRM: loadPrompt('review/system'|'chunk'|'summary'|'cross-file', vars)
+    PRM-->>FEAT: 模板文本
+    FEAT-->>PIPE: [outline?] → chunk(MapStep) → summary → cross-file
+
+    loop 按序执行每个 step（runIf=false 则跳过）
+        alt kind = 'map'（Pass A 分片分析）
+            PIPE->>PIPE: mapWithConcurrency(chunks, cfg.llm.concurrency)
+            par 每片一次调用
+                PIPE->>PRM: composePrompt({instructions, rules, schema, fewShot, variable: chunkText})
+                Note right of PRM: 稳定前缀在前，diff 最后（吃前缀缓存）
+                PRM-->>PIPE: {system, user}
+                PIPE->>DS: complete({tier:'fast', thinking:'off', jsonSchema})
+                DS->>DS: withRetry（429/5xx/超时，指数退避，最多 2 次）
+                DS-->>PIPE: LLMResponse(text, usage)
+                PIPE->>ZD: schema.safeParse(JSON.parse(text))
+                alt 校验失败
+                    PIPE->>DS: 重试 1 次（prompt 追加「上次错误」）
+                    DS-->>PIPE: LLMResponse
+                end
+                ZD-->>PIPE: 该片问题列表
+            end
+        else kind = 'single'（Pass B 汇总 / Pass C 交叉检查）
+            PIPE->>PRM: composePrompt({... variable: 前序步骤结果})
+            PRM-->>PIPE: {system, user}
+            PIPE->>DS: complete({tier:'strong', thinking:'high'})
+            DS-->>PIPE: LLMResponse
+            PIPE->>ZD: safeParse → 汇总结果
+        end
+        PIPE->>CLI: onProgress({phase:'llm', current, total})
+    end
+
+    PIPE->>FEAT: reduce(results, data, ctx)
+    FEAT-->>PIPE: ReviewOutput{overview, intent, issues[], crossFile[], highlights[], questions[]}
+    PIPE-->>CLI: PipelineResult{output, results, usage}
+
+    Note over CLI,OUT: 阶段 3：渲染 + 落盘
+    CLI->>FEAT: render(output, ctx, data)
+    Note right of FEAT: 统计数字取自 data.stats（模型不算数）
+    FEAT-->>CLI: Markdown 全文
+    CLI->>OUT: resolveOutputPath(cfg, root, 'review', {branch})
+    OUT-->>CLI: .git-agent/reports/2026-09/main-review-20260901-1430.md
+    CLI->>OUT: writeReport(md, path)（UTF-8 / LF / 递归建目录）
+    CLI->>U: ✓ 审查完成：2 阻断 / 5 重要 / 11 建议 → 报告路径
+    CLI->>CLI: exitCode = 有 blocker ? 2 : 0
+    CLI-->>U: process.exit(code)

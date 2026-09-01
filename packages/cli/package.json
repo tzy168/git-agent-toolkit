@@ -1,0 +1,22 @@
+{
+  "name": "git-agent-toolkit",
+  "version": "0.1.0",
+  "description": "基于 DeepSeek 的个人 Git 工作流工具箱 CLI",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "git-agent": "bin/git-agent.js"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "scripts": {
+    "_build": "tsc -p ."
+  },
+  "dependencies": {
+    "@git-agent/core": "*",
+    "commander": "^15.0.0",
+    "picocolors": "^1.1.1"
+  }
+}
