@@ -39,7 +39,7 @@ function safeKey(key: string): string {
 
 /** 创建磁盘 KV 缓存，落在 `<root>/<dir>/<ns>/<key>.json` */
 export function createDiskCache(root: string, opts: DiskCacheOptions = {}): DiskCache {
-  const enabled = opts.enabled !== false;
+  const enabled = opts.enabled === true;
   const maxAgeDays = opts.maxAgeDays ?? 7;
   const logger = opts.logger;
   const base = path.resolve(root, opts.dir ?? '.git-agent/cache');

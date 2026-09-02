@@ -23,7 +23,7 @@ output:
   format: markdown
   language: zh-CN
 cache:
-  enabled: true
+  enabled: false
   maxAgeDays: 7
 `;
 

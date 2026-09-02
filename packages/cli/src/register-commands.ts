@@ -32,7 +32,8 @@ export function registerCommands(program: Command): void {
     .option('--stdout', '把全文打到 stdout')
     .option('--json', 'JSON 输出')
     .option('--dry-run', '只打印 prompt，不调 API')
-    .option('--no-cache', '禁用缓存')
+    .option('--cache', '启用采集/结果缓存（默认关闭）')
+    .option('--no-cache', '禁用缓存（覆盖配置）')
     .option('--model <id>', '覆盖本次使用的模型 id')
     .option('-v, --verbose', 'debug 日志')
     .option('--quiet', '静默');

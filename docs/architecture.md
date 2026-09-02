@@ -554,7 +554,7 @@ export interface ResolvedConfig {
     enrichThresholdLines: number;   // 默认 30 —— 单文件改动超过此行数才做上下文补全
     enrichMaxTokens: number;        // 默认 20000 —— 补全总量上限
   };
-  cache: { enabled: boolean; maxAgeDays: number; dir: string };   // 默认 true / 7 / '.git-agent/cache'
+  cache: { enabled: boolean; maxAgeDays: number; dir: string };   // 默认 false / 7 / '.git-agent/cache'
 }
 ```
 

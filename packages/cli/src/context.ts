@@ -46,7 +46,7 @@ export async function buildContext(opts: CliOpts): Promise<FeatureContext> {
   if (opts.model) {
     cliOverrides.llm = { model: { fast: opts.model, strong: opts.model } };
   }
-  if (opts.cache === false) cliOverrides.cache = { enabled: false };
+  if (typeof opts.cache === 'boolean') cliOverrides.cache = { enabled: opts.cache };
   if (opts.lang) cliOverrides.commit = { language: opts.lang };
 
   const config = await loadConfig({ cwd: process.cwd(), cliOverrides });

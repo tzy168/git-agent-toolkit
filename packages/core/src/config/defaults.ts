@@ -99,7 +99,7 @@ export const DEFAULT_CONFIG: ResolvedConfig = {
   },
 
   cache: {
-    enabled: true,
+    enabled: false,
     maxAgeDays: 7,
     dir: '.git-agent/cache',
   },

@@ -32,7 +32,7 @@ gat spec --base origin/main      # 技术方案反推
 gat ask "帮我生成本周周报"         # 自然语言挑命令
 ```
 
-通用参数：`--base` `--head` `--out` `--stdout` `--json` `--dry-run` `--no-cache` `-v` `--quiet`
+通用参数：`--base` `--head` `--out` `--stdout` `--json` `--dry-run` `--cache` `--no-cache` `-v` `--quiet`（缓存默认关闭，`--cache` 或配置 `cache.enabled: true` 才启用）
 
 ## 加一个新功能（3 步）
 
