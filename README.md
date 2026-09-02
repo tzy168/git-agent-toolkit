@@ -1,58 +1,163 @@
 # git-agent-toolkit
 
-基于 DeepSeek 的个人 Git 工作流工具箱。从 git 采集数据 → 加工 diff → 组装 prompt → 调 DeepSeek → 渲染成 Markdown 报告落盘。
+**English** | [中文](README.zh-CN.md)
 
-## 安装
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D22-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/tzy168/git-agent-toolkit/pulls)
+[![GitHub stars](https://img.shields.io/github/stars/tzy168/git-agent-toolkit?style=social)](https://github.com/tzy168/git-agent-toolkit/stargazers)
+
+> DeepSeek-powered Git workflow CLI. Collect git → process diffs → compose prompts → call DeepSeek → write Markdown reports.
+
+Generate commit messages from the staging area. From a branch comparison, produce a review, test plan, impact analysis, PR description, and technical spec. Local CLI, reports written to disk. Counts come from git facts — the model does not add up files, lines, or commits.
+
+**If this tool helps you, please [Star](https://github.com/tzy168/git-agent-toolkit) the repo. To make it better, [open an Issue](https://github.com/tzy168/git-agent-toolkit/issues) or [send a PR](https://github.com/tzy168/git-agent-toolkit/pulls).**
+
+## What it does
+
+| Command | Purpose |
+|---|---|
+| `gat commit` | Staging area → 3 commit-message candidates → pick one and commit |
+| `gat weekly` | This week's log → weekly report |
+| `gat review` | Code review (shard + summarize + cross-file) |
+| `gat test-plan` | Test plan (P0 / P1 / P2) |
+| `gat impact` | Impact analysis (reverse symbol search) |
+| `gat pr-desc` | PR description (filled from the repo template) |
+| `gat spec` | Infer a technical spec from the diff |
+| `gat ask` | Pick a command from natural language |
+
+Branch comparison always uses three-dot diff: `git diff <base>...<head>`. Except `commit` (and hooks writing `.git/hooks`), the tool is read-only and does not modify source in the analyzed repo.
+
+## Quick start
+
+Requires **Node ≥ 22** and a [DeepSeek API Key](https://platform.deepseek.com/).
 
 ```bash
-npm install          # 根目录一次装完两个 workspace
-npm run build        # tsc 直出 dist + 拷贝 prompts/*.md
-npm run link         # 全局注册 gat 命令（git-agent 仍可用）
+git clone https://github.com/tzy168/git-agent-toolkit.git
+cd git-agent-toolkit
+npm install
+npm run build
+npm run link          # register the global gat command (git-agent still works)
 ```
 
-配置 API Key（二选一）：
+Set the API key (either one):
 
 ```bash
-# 全局（推荐）
+# global (recommended)
+mkdir -p ~/.git-agent
 echo "DEEPSEEK_API_KEY=sk-xxx" > ~/.git-agent/.env
-# 或仓库内 .env
-cp .env.example .env
+
+# or in the repo
+cp .env.example .env   # fill in the real key
 ```
 
-## 七个命令
+Then, in any git repo:
 
 ```bash
-gat commit                       # 暂存区 → 3 个提交信息候选 → 选一个提交
-gat weekly --note "本周重点是重构"  # 本周 log → 周报
-gat review --base origin/main    # 代码审查（分片 + 汇总 + 跨文件）
-gat test-plan --base origin/main # 测试计划（P0/P1/P2）
-gat impact --base origin/main    # 影响面分析（反向符号搜索）
-gat pr-desc --base origin/main   # PR 描述（按仓库模板填充）
-gat spec --base origin/main      # 技术方案反推
-gat ask "帮我生成本周周报"         # 自然语言挑命令
+gat commit
+gat review --base origin/main
+gat ask "help me write this week's report"
 ```
 
-通用参数：`--base` `--head` `--out` `--stdout` `--json` `--dry-run` `--cache` `--no-cache` `-v` `--quiet`（缓存默认关闭，`--cache` 或配置 `cache.enabled: true` 才启用）
+Reports default to `<repo>/.git-agent/reports/YYYY-MM/`. The terminal prints a one-line summary. `--stdout` prints the full report, `--json` prints a structured object, `--dry-run` prints the prompt and does not call the API.
 
-## 加一个新功能（3 步）
-
-1. 新建 `packages/core/src/features/xxx/index.ts`（实现 `Feature` 接口）+ `schema.ts`
-2. 新建 `packages/core/prompts/xxx/*.md`
-3. 在 `packages/core/src/features/index.ts` 加一行 `register(xxxFeature)`
-
-CLI 无需任何改动 —— 命令、参数、`--help` 全部从注册表自动生成。
-
-## 开发
+## Command examples
 
 ```bash
-npm test             # vitest
-npm run typecheck    # tsc --noEmit
-npm run dev -- commit  # tsx 直接跑 CLI
+gat commit                       # staging area → 3 commit-message candidates → pick one
+gat weekly --note "this week was a refactor"
+gat review --base origin/main
+gat test-plan --base origin/main
+gat impact --base origin/main
+gat pr-desc --base origin/main
+gat spec --base origin/main
+gat ask "help me write this week's report"
 ```
 
-## 约定
+Global flags: `--base` `--head` `--out` `--stdout` `--json` `--dry-run` `--cache` `--no-cache` `-v` `--quiet`
 
-- 分支对比一律用三点语法 `git diff <base>...<head>`，禁止两点（两点会把 base 新合入的内容误判成"你的删除"）。
-- 只读原则：除 `commit` 命令外，不写 git 状态、不改源码文件。
-- 模型 id 只在 `config.llm.model` 两处配置（`deepseek-v4-flash` / `deepseek-v4-pro`）。
-- 报告默认落 `<repo>/.git-agent/reports/YYYY-MM/`，终端只打一行摘要。
+Cache is off by default. Enable it with `--cache` or `cache.enabled: true` in config.
+
+Helpers: `gat config init`, `gat hooks install`, `gat cache stats`.
+
+## Add a feature (3 steps)
+
+No CLI changes. Commands, flags, and `--help` are generated from the registry.
+
+1. Add `packages/core/src/features/<id>/index.ts` (implement `Feature`) + `schema.ts`
+2. Add `packages/core/prompts/<id>/*.md`
+3. Add one `register(...)` line in `packages/core/src/features/index.ts`
+
+Good first contributions: tweak a prompt, add a unit test, fix docs, or ship a small Feature.
+
+## Architecture
+
+```
+packages/cli     thin shell: argv, prompts, exit codes
+packages/core    all business logic: git / diff / prompt / LLM / Feature
+```
+
+```
+cli → Feature.collect → pipeline(buildSteps → LLM → zod → reduce) → render → write file
+```
+
+- `@git-agent/core` must not import vscode / DOM / any UI API
+- A Feature only declares steps; it does not call the LLM. `pipeline.ts` is the only orchestrator
+- Interfaces and algorithms: [`docs/architecture.md`](docs/architecture.md)
+
+## Development
+
+```bash
+npm test               # vitest
+npm run typecheck      # tsc --noEmit
+npm run dev -- commit  # run the CLI via tsx
+```
+
+Package manager is **npm** (workspaces). TypeScript ESM + `module: NodeNext`; relative imports must use a `.js` suffix. Build is `tsc` to `dist`, no bundler.
+
+Handbook for coding agents: [`AGENTS.md`](AGENTS.md). Task order: [`docs/tasks.md`](docs/tasks.md).
+
+## Contributing
+
+Anyone can contribute. You do not need to be a Git or LLM expert first.
+
+**Good places to start:**
+
+- Pure-function tests in `packages/core/test/` (parser, splitter, config loader, budget, …)
+- Improve `packages/core/prompts/**/*.md` (changing a prompt changes behavior — say so in the PR)
+- Fix stale or unclear sentences in the README or architecture docs
+- Add a small Feature (the 3 steps above)
+- Report a bug: include the command, a `--dry-run` snippet (redact the key), and the Node version
+
+**Before opening a PR:**
+
+```bash
+npm run typecheck
+npm test
+```
+
+Conventions:
+
+- Branch diffs use three-dot syntax `git diff <base>...<head>`. Two-dot is forbidden
+- Read-only: except `commit`, do not write git state or source in the analyzed repo
+- `process.exit` is allowed only in the CLI `main()`; core throws `GitAgentError`
+- Logs go to stderr only; stdout is for the full report / JSON / `--dry-run`
+- Model ids appear only as `MODEL_FAST` / `MODEL_STRONG` in `config/defaults.ts`
+
+Not sure where to start? Open an Issue describing what you want to do — we can label it `good first issue`.
+
+## Star
+
+If `gat commit` or `gat review` saved you a round of work, click Star. That is the most direct support for this repo, and it helps other people find it.
+
+[⭐ Star git-agent-toolkit](https://github.com/tzy168/git-agent-toolkit)
+
+## Usage notes
+
+- Reports default to `<repo>/.git-agent/reports/YYYY-MM/`; the terminal prints a one-line summary
+- File counts / added-deleted lines / commit counts in reports come from `data.stats`, not the model
+- The provider can be constructed without an API key; the first LLM call raises `NO_API_KEY`
+
+## License
+
+[MIT](LICENSE)
