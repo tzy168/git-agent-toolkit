@@ -22,8 +22,13 @@ export { createGitProvider } from './git/index.js';
 export type { CommitInfo, GitProvider } from './git/index.js';
 
 export { parseDiff, filterFiles, splitIntoChunks, gradeScale } from './diff/index.js';
+export { extractChangedSymbols, reverseSearch, REVERSE_MAX_DEPTH } from './diff/reverse-search.js';
+export type { SymbolChange, SymbolKind, ReferenceHit, ReverseSearchResult, ReverseSearchOpts } from './diff/reverse-search.js';
 
 export { registerAll, register, getFeature, listFeatures, runPipeline, previewPrompts, commitFeature, formatCommitMessage } from './features/index.js';
 export type { Feature, FeatureContext, PipelineResult, CommitOutput, CommitCandidate, SingleStep } from './features/index.js';
 
 export { resolveOutputPath, writeReport, printSummary } from './output/index.js';
+
+export { toJsonEnvelope } from './render/index.js';
+export type { JsonEnvelope } from './render/index.js';

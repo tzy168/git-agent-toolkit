@@ -82,7 +82,8 @@ export async function createGitProvider(cwd: string): Promise<GitProvider> {
     },
 
     async getLog(opts: LogOptions = {}) {
-      const args = ['log', '--pretty=format:%H%x00%h%x00%an%x00%ae%x00%aI%x00%s%x00%b%x1e'];
+      // 记录分隔符 \x1e 放头部：保证 numstat 行总是落在所属 commit 记录内
+      const args = ['log', '--pretty=format:%x1e%H%x00%h%x00%an%x00%ae%x00%aI%x00%s%x00%b'];
       if (opts.all) args.push('--all');
       if (opts.maxCount) args.push(`-${opts.maxCount}`);
       if (opts.since) args.push(`--since=${opts.since}`);
@@ -170,6 +171,8 @@ export async function createGitProvider(cwd: string): Promise<GitProvider> {
   return provider;
 }
 
+const NUMSTAT_LINE = /^(\d+|-)\t(\d+|-)\t(.+)$/;
+
 function parseLog(rawOut: string): CommitInfo[] {
   if (rawOut.trim() === '') return [];
   const records = rawOut.split('\x1e');
@@ -177,12 +180,24 @@ function parseLog(rawOut: string): CommitInfo[] {
   for (const rec of records) {
     const chunk = rec.replace(/^\r?\n/, '');
     if (!chunk.trim()) continue;
-    const [meta, ...rest] = chunk.split(/\r?\n/);
-    const parts = (meta ?? '').split('\0');
+    const lines = chunk.split(/\r?\n/);
+    const parts = (lines[0] ?? '').split('\0');
     if (parts.length < 6) continue;
     const [sha, shortSha, author, email, date, subject, bodyHead] = parts;
-    const bodyTail = rest.join('\n').trim();
-    const body = [bodyHead, bodyTail].filter(Boolean).join('\n').trim();
+    const bodyLines: string[] = bodyHead ? [bodyHead] : [];
+    const files: { path: string; add: number; del: number }[] = [];
+    for (const line of lines.slice(1)) {
+      const m = line.match(NUMSTAT_LINE);
+      if (m) {
+        files.push({
+          path: toPosix(m[3] ?? ''),
+          add: m[1] === '-' ? 0 : Number(m[1]),
+          del: m[2] === '-' ? 0 : Number(m[2]),
+        });
+      } else if (line.trim() !== '') {
+        bodyLines.push(line);
+      }
+    }
     out.push({
       sha: sha ?? '',
       shortSha: shortSha ?? '',
@@ -190,7 +205,8 @@ function parseLog(rawOut: string): CommitInfo[] {
       email: email ?? '',
       date: date ?? '',
       subject: subject ?? '',
-      body,
+      body: bodyLines.join('\n').trim(),
+      files: files.length > 0 ? files : undefined,
     });
   }
   return out;

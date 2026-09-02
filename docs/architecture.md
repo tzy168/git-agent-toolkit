@@ -965,6 +965,7 @@ export function composePrompt(o: {
 | 5 | commit 规范 | 假设 **Conventional Commits**（方案 §7 已定），`types` 可配 | 否 |
 | 6 | 是否要 CI 集成 | 假设**暂不**，但退出码 2 / `--json` 按方案 §2.3 做扎实，将来直接可用 | 否 |
 | 7 | `weekly` 的时间窗 | 默认**本周一 00:00 ~ 现在**；`--since/--until` 可覆盖 | 否 |
+| 7b | `weekly` 的作者范围 | 默认**只统计当前 git 用户**（`git config user.name`/`user.email`）；优先级 `--authors` > `git.includeAuthors` > 当前用户；`--all-authors` 显式统计所有人；识别不到当前用户时回退为统计所有人并 warn | 否 |
 | 8 | 配置新增项（`diff:` / `cache:` / `llm.chunkTargetTokens` 等） | 已在 §3.8 标注，均为实现必需，方案 §7 未覆盖 | 否（属实现细节） |
 | 9 | `ts-morph` 是否安装 | 默认放 `optionalDependencies`，**不强制**；没装则 enricher / impact 自动正则降级 | 否 |
 | 10 | DeepSeek 价格 / 模型 id 变更 | 模型 id 集中在 `config.llm.model` 两处；价格不进代码 | 否 |

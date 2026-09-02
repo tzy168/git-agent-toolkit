@@ -23,6 +23,13 @@ export interface CliOpts {
   model?: string;
   prefill?: boolean;
   lang?: string;
+  since?: string;
+  until?: string;
+  note?: string;
+  noteFile?: string;
+  edit?: boolean;
+  withReview?: boolean;
+  authors?: string;
 }
 
 function logLevel(opts: CliOpts): LogLevel {

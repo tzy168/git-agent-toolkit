@@ -71,6 +71,8 @@ export interface Feature<I = any, O = any> {
   outputSchema: ZodType<O>;
   render(output: O, ctx: FeatureContext, data: CollectedData): string;
   exitCode?(output: O): ExitCode;
+  /** 可选：终端一行摘要（无则用默认文案） */
+  summaryLine?(output: O): string;
 }
 
 const registry = new Map<string, Feature>();

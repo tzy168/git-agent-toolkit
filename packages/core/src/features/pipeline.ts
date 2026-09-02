@@ -156,7 +156,7 @@ async function callAndParse(
   return { ok: true, data: checked.data };
 }
 
-/** 生成每步 {system,user}，供 --dry-run 打印，不调 LLM */
+/** 生成每步 {system,user}，供 --dry-run 打印，不调 LLM；map 步只预览第 1 项 */
 export function previewPrompts(
   feature: Feature<any, unknown>,
   data: CollectedData,
@@ -165,8 +165,15 @@ export function previewPrompts(
   const out: { id: string; system: string; user: string }[] = [];
   const results: StepResults = {};
   for (const step of feature.buildSteps(data, ctx)) {
-    if (step.kind !== 'single') continue;
-    const user = ctx.redactor.redact(step.buildUser(results, data, ctx));
+    if (step.runIf && !step.runIf(results, data)) continue;
+    let user: string;
+    if (step.kind === 'map') {
+      const items = step.mapOver(results, data);
+      if (items.length === 0) continue;
+      user = ctx.redactor.redact(step.buildUserItem(items[0]!, 0, results, data, ctx));
+    } else {
+      user = ctx.redactor.redact(step.buildUser(results, data, ctx));
+    }
     const composed = composePrompt({
       instructions: step.system,
       rules: '',

@@ -82,7 +82,7 @@ export const REDACT_RULES: RedactRule[] = [
   {
     id: 'authorization-value',
     name: 'Authorization 头的值',
-    pattern: /((?:authorization|Authorization)\s*[:=]\s*["']?)[A-Za-z0-9._~+/=-]{16,}/g,
+    pattern: /((?:authorization|Authorization)\s*[:=]\s*["']?)[A-Za-z0-9._~+/\s=-]{16,}/g,
     replacement: '$1[REDACTED:AUTH]',
     examples: {
       positive: ['authorization: "Basic dXNlcm5hbWU6cGFzc3dvcmQxMjM0"'],
