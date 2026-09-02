@@ -35,7 +35,7 @@ npm test               # vitest run（尚无用例也要能跑）
 npm run dev -- commit  # tsx 直接跑 CLI，后面跟子命令和参数
 ```
 
-全局命令：`gat`（`git-agent` 仍可用）。API Key 在 `~/.git-agent/.env` 或仓库 `.env`；无 Key 时 provider 能建成，**第一次 LLM 调用**才抛 `NO_API_KEY`。
+全局命令：`gat`（`git-agent` 仍可用）。API Key 在 `~/.git-agent/.env` 或仓库 `.env`。TTY 下缺 Key 时 CLI 提示输入并写入 `~/.git-agent/.env`；非 TTY / `--prefill` / `--dry-run` 不提示，provider 仍能建成，第一次 LLM 调用才抛 `NO_API_KEY`。
 
 ## 加新功能（只这 3 步）
 

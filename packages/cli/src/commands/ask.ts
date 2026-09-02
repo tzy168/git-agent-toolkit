@@ -2,7 +2,7 @@ import type { Command } from 'commander';
 
 import { listFeatures } from '@git-agent/core';
 
-import { buildContext } from '../context.js';
+import { buildContext, ensureApiKey } from '../context.js';
 import { EXIT } from '../exit.js';
 import { confirm } from '../interactive.js';
 
@@ -26,6 +26,7 @@ const DECISION_JSON_SCHEMA = {
 /** git-agent ask "<需求>"：模型挑命令 + 参数，展示并确认后执行 */
 export async function askCommand(query: string, program: Command): Promise<number> {
   const ctx = await buildContext({});
+  await ensureApiKey(ctx.logger);
 
   const menu = listFeatures()
     .map((f) => `- ${f.id}：${f.description}`)

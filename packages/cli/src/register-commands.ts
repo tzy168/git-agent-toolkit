@@ -19,7 +19,7 @@ import { askCommand } from './commands/ask.js';
 import { cacheCommand } from './commands/cache.js';
 import { configCommand } from './commands/config.js';
 import { hooksCommand } from './commands/hooks.js';
-import { buildContext, type CliOpts } from './context.js';
+import { buildContext, ensureApiKey, type CliOpts } from './context.js';
 import { EXIT } from './exit.js';
 import { editInEditor, selectOne } from './interactive.js';
 
@@ -106,6 +106,8 @@ async function runFeature(feature: Feature, opts: CliOpts): Promise<number> {
     }
     return EXIT.OK;
   }
+
+  if (!opts.prefill) await ensureApiKey(ctx.logger);
 
   const result = await runPipeline(feature, data, ctx);
   await ctx.cache.write('result', `${feature.id}:${data.fingerprint}`, result.output);

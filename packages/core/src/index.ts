@@ -4,7 +4,19 @@ export { GitAgentError, ERROR_CODES, isGitAgentError, toGitAgentError } from './
 export { createLogger, noopLogger } from './logger.js';
 export { absPosix, extOf, relativeTo, safeBranchName, samePath, toPosix, topDirs } from './paths.js';
 
-export { loadConfig, loadEnvFiles, mergeConfigs, DEFAULT_CONFIG, MODEL_FAST, MODEL_STRONG, validateConfig } from './config/index.js';
+export {
+  API_KEY_ENV,
+  loadConfig,
+  loadEnvFiles,
+  mergeConfigs,
+  hasApiKey,
+  saveGlobalApiKey,
+  upsertEnvLine,
+  DEFAULT_CONFIG,
+  MODEL_FAST,
+  MODEL_STRONG,
+  validateConfig,
+} from './config/index.js';
 export type { GitAgentConfig, LoadConfigOptions, ResolvedConfig } from './config/index.js';
 
 export { createDiskCache } from './cache/index.js';

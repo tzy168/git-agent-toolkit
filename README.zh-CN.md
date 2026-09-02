@@ -40,7 +40,7 @@ npm run build
 npm run link          # 全局注册 gat（git-agent 仍可用）
 ```
 
-配置 API Key（二选一）：
+首次使用若未配置 Key，命令行会提示输入，并写入 `~/.git-agent/.env`。也可手动配置：
 
 ```bash
 # 全局（推荐）
@@ -156,7 +156,7 @@ npm test
 
 - 报告默认落 `<repo>/.git-agent/reports/YYYY-MM/`，终端只打一行摘要
 - 报告里的文件数 / 增删行 / commit 数来自 `data.stats`，不是模型算的
-- 无 API Key 时 provider 能建成，第一次 LLM 调用才报 `NO_API_KEY`
+- 无 API Key 时 provider 能建成。TTY 下会提示输入并写入 `~/.git-agent/.env`；否则第一次 LLM 调用才报 `NO_API_KEY`
 
 ## License
 

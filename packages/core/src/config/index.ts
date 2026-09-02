@@ -11,5 +11,14 @@ export type {
 export { DEFAULT_CONFIG, MODEL_FAST, MODEL_STRONG } from './defaults.js';
 export { ConfigSchema, validateConfig } from './schema.js';
 export type { ConfigIssue, ValidateResult } from './schema.js';
-export { loadConfig, loadEnvFiles, mergeConfigs } from './loader.js';
+export {
+  API_KEY_ENV,
+  globalEnvPath,
+  hasApiKey,
+  loadConfig,
+  loadEnvFiles,
+  mergeConfigs,
+  saveGlobalApiKey,
+  upsertEnvLine,
+} from './loader.js';
 export type { LoadConfigOptions } from './loader.js';

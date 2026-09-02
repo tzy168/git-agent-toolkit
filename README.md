@@ -40,7 +40,7 @@ npm run build
 npm run link          # register the global gat command (git-agent still works)
 ```
 
-Set the API key (either one):
+On first use, if no API key is found, the CLI prompts for it and writes `~/.git-agent/.env`. You can also set it yourself:
 
 ```bash
 # global (recommended)
@@ -156,7 +156,7 @@ If `gat commit` or `gat review` saved you a round of work, click Star. That is t
 
 - Reports default to `<repo>/.git-agent/reports/YYYY-MM/`; the terminal prints a one-line summary
 - File counts / added-deleted lines / commit counts in reports come from `data.stats`, not the model
-- The provider can be constructed without an API key; the first LLM call raises `NO_API_KEY`
+- The provider can be constructed without an API key. In a TTY the CLI prompts and saves `~/.git-agent/.env`; otherwise the first LLM call raises `NO_API_KEY`
 
 ## License
 

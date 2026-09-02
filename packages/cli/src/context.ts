@@ -4,11 +4,17 @@ import {
   createLLMProvider,
   createLogger,
   createRedactor,
+  GitAgentError,
+  hasApiKey,
   loadConfig,
+  saveGlobalApiKey,
   type FeatureContext,
   type GitAgentConfig,
   type LogLevel,
+  type Logger,
 } from '@git-agent/core';
+
+import { promptLine } from './interactive.js';
 
 export interface CliOpts {
   base?: string;
@@ -79,4 +85,33 @@ export async function buildContext(opts: CliOpts): Promise<FeatureContext> {
       console.error(`⏳ ${e.message}${frac}`);
     },
   };
+}
+
+function normalizeApiKey(raw: string): string {
+  let key = raw.trim().replace(/^['"]|['"]$/g, '');
+  if (key.startsWith('DEEPSEEK_API_KEY=')) key = key.slice('DEEPSEEK_API_KEY='.length).trim();
+  return key;
+}
+
+/** TTY 下缺 Key 时提示输入并写入 ~/.git-agent/.env；非 TTY 交给后续 LLM 抛 NO_API_KEY */
+export async function ensureApiKey(logger?: Logger): Promise<void> {
+  if (hasApiKey()) return;
+  const raw = await promptLine(
+    '未检测到 DEEPSEEK_API_KEY（https://platform.deepseek.com/）\n请输入 DeepSeek API Key: ',
+  );
+  const key = raw ? normalizeApiKey(raw) : '';
+  if (!key) {
+    throw new GitAgentError(
+      'NO_API_KEY',
+      '未检测到 DEEPSEEK_API_KEY',
+      '在 ~/.git-agent/.env 或仓库 .env 中配置 DEEPSEEK_API_KEY',
+    );
+  }
+  process.env.DEEPSEEK_API_KEY = key;
+  try {
+    const file = await saveGlobalApiKey(key);
+    console.error(`✓ 已写入 ${file}，下次无需再输入`);
+  } catch (e) {
+    logger?.warn(`写入 ~/.git-agent/.env 失败，本次仍使用刚输入的 Key：${e instanceof Error ? e.message : String(e)}`);
+  }
 }

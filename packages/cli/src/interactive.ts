@@ -19,6 +19,17 @@ export async function selectOne(msg: string, items: string[]): Promise<string | 
   }
 }
 
+/** 单行输入，提示写 stderr；非 TTY 返回 null */
+export async function promptLine(msg: string): Promise<string | null> {
+  if (!process.stderr.isTTY || !input.isTTY) return null;
+  const rl = createInterface({ input, output: process.stderr });
+  try {
+    return (await rl.question(msg)).trim();
+  } finally {
+    rl.close();
+  }
+}
+
 /** y/n 确认；非 TTY 视为否 */
 export async function confirm(msg: string): Promise<boolean> {
   if (!output.isTTY || !input.isTTY) return false;

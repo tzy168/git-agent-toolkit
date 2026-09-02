@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { chmod, mkdir, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -47,9 +47,53 @@ export function mergeConfigs<T>(base: T, patch: unknown): T {
   return out as T;
 }
 
+export const API_KEY_ENV = 'DEEPSEEK_API_KEY';
+
+export function globalEnvPath(homeDir: string = os.homedir()): string {
+  return path.join(homeDir, '.git-agent', '.env');
+}
+
+/** 进程环境里是否已有非空 DEEPSEEK_API_KEY */
+export function hasApiKey(env: NodeJS.ProcessEnv = process.env): boolean {
+  return Boolean(env[API_KEY_ENV]?.trim());
+}
+
+/** 在 .env 文本里写入或替换 KEY=value；保留其他行，统一 LF */
+export function upsertEnvLine(text: string, key: string, value: string): string {
+  const line = `${key}=${value}`;
+  const re = new RegExp(`^${key}=.*$`, 'm');
+  const normalized = text.replace(/\r\n?/g, '\n');
+  if (re.test(normalized)) return `${normalized.replace(re, () => line).replace(/\n*$/, '')}\n`;
+  const body = normalized.replace(/\s*$/, '');
+  return body ? `${body}\n${line}\n` : `${line}\n`;
+}
+
+/** 把 DEEPSEEK_API_KEY 写入 ~/.git-agent/.env，并写入当前进程环境 */
+export async function saveGlobalApiKey(key: string, homeDir: string = os.homedir()): Promise<string> {
+  const dir = path.join(homeDir, '.git-agent');
+  const file = globalEnvPath(homeDir);
+  await mkdir(dir, { recursive: true });
+  let prev = '';
+  try {
+    prev = await readFile(file, 'utf8');
+  } catch {
+    // 文件不存在当空文件
+  }
+  await writeFile(file, upsertEnvLine(prev, API_KEY_ENV, key), 'utf8');
+  if (process.platform !== 'win32') {
+    try {
+      await chmod(file, 0o600);
+    } catch {
+      // 无 chmod 权限时忽略
+    }
+  }
+  process.env[API_KEY_ENV] = key;
+  return file;
+}
+
 /** 载入 DEEPSEEK_API_KEY：全局 ~/.git-agent/.env 优先，仓库 .env 补充，都不覆盖已有环境变量 */
 export function loadEnvFiles(homeDir: string, repoRoot: string): void {
-  for (const file of [path.join(homeDir, '.git-agent', '.env'), path.join(repoRoot, '.env')]) {
+  for (const file of [globalEnvPath(homeDir), path.join(repoRoot, '.env')]) {
     loadDotenv({ path: file, override: false, quiet: true });
   }
 }

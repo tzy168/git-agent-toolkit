@@ -28,12 +28,12 @@ export function createDeepSeekProvider(cfg: ResolvedConfig, logger?: Logger): LL
       return lastModel;
     },
     async complete(req: LLMRequest): Promise<LLMResponse> {
-      const key = process.env.DEEPSEEK_API_KEY;
+      const key = process.env.DEEPSEEK_API_KEY?.trim();
       if (!key) {
         throw new GitAgentError(
           'NO_API_KEY',
           '未检测到 DEEPSEEK_API_KEY',
-          '在 ~/.git-agent/.env 或仓库 .env 中配置 DEEPSEEK_API_KEY',
+          '交互终端下会提示输入；也可写入 ~/.git-agent/.env 或仓库 .env',
         );
       }
       client ??= new OpenAI({ apiKey: key, baseURL: BASE_URL, timeout: cfg.llm.timeoutMs });
