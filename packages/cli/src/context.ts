@@ -12,7 +12,7 @@ import {
   type GitAgentConfig,
   type LogLevel,
   type Logger,
-} from '@git-agent/core';
+} from 'git-agent-core';
 
 import { promptLine } from './interactive.js';
 

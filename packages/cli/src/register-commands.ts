@@ -13,7 +13,7 @@ import {
   printSummary,
   type CommitOutput,
   type Feature,
-} from '@git-agent/core';
+} from 'git-agent-core';
 
 import { askCommand } from './commands/ask.js';
 import { cacheCommand } from './commands/cache.js';
@@ -122,10 +122,10 @@ async function runFeature(feature: Feature, opts: CliOpts): Promise<number> {
 async function finishReport(
   feature: Feature,
   output: unknown,
-  usage: import('@git-agent/core').UsageTotals,
+  usage: import('git-agent-core').UsageTotals,
   ctx: Awaited<ReturnType<typeof buildContext>>,
   opts: CliOpts,
-  data: import('@git-agent/core').CollectedData,
+  data: import('git-agent-core').CollectedData,
 ): Promise<number> {
   const md = feature.render(output, ctx, data);
   const outPath = resolveOutputPath(ctx.config, ctx.config.repoRoot, feature.id, { out: opts.out, branch: ctx.repo.branch });

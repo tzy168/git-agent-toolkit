@@ -1,9 +1,12 @@
 {
-  "name": "@git-agent/core",
+  "name": "git-agent-core",
   "version": "0.1.0",
   "description": "git-agent-toolkit 的核心逻辑：git/diff 采集、prompt 组装、LLM 适配、渲染落盘",
   "type": "module",
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -15,6 +18,18 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tzy168/git-agent-toolkit.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/tzy168/git-agent-toolkit#readme",
+  "bugs": {
+    "url": "https://github.com/tzy168/git-agent-toolkit/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p . && node ../../scripts/copy-assets.mjs"
   },

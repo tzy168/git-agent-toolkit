@@ -1,6 +1,6 @@
 import type { Command } from 'commander';
 
-import { listFeatures } from '@git-agent/core';
+import { listFeatures } from 'git-agent-core';
 
 import { buildContext, ensureApiKey } from '../context.js';
 import { EXIT } from '../exit.js';

@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-import { createGitProvider } from '@git-agent/core';
+import { createGitProvider } from 'git-agent-core';
 
 import { EXIT } from '../exit.js';
 

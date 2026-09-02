@@ -18,7 +18,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p packages/core/tsconfig.test.json && tsc -p packages/cli --noEmit",
-    "clean": "node -e \"const{rmSync}=require('fs');for(const p of ['packages/core/dist','packages/cli/dist'])rmSync(p,{recursive:true,force:true})\""
+    "clean": "node -e \"const{rmSync}=require('fs');for(const p of ['packages/core/dist','packages/cli/dist'])rmSync(p,{recursive:true,force:true})\"",
+    "publish:npm": "npm run build && npm publish -w git-agent-core --access public --registry=https://registry.npmjs.org/ && npm publish -w git-agent-toolkit --access public --registry=https://registry.npmjs.org/"
   },
   "devDependencies": {
     "@types/node": "^26.4.0",

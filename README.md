@@ -30,7 +30,15 @@ Branch comparison always uses three-dot diff: `git diff <base>...<head>`. Except
 
 ## Quick start
 
-Requires **Node ≥ 22** and a [DeepSeek API Key](https://platform.deepseek.com/).
+Requires **Node ≥ 22** and a [DeepSeek API Key](https://platform.deepseek.com/). After the package is published to npm:
+
+```bash
+npm i -g git-agent-toolkit
+# or: pnpm i -g git-agent-toolkit
+# one-shot: npx git-agent-toolkit commit
+```
+
+Until then, install from source:
 
 ```bash
 git clone https://github.com/tzy168/git-agent-toolkit.git
@@ -101,7 +109,7 @@ packages/core    all business logic: git / diff / prompt / LLM / Feature
 cli → Feature.collect → pipeline(buildSteps → LLM → zod → reduce) → render → write file
 ```
 
-- `@git-agent/core` must not import vscode / DOM / any UI API
+- `git-agent-core` must not import vscode / DOM / any UI API
 - A Feature only declares steps; it does not call the LLM. `pipeline.ts` is the only orchestrator
 - Interfaces and algorithms: [`docs/architecture.md`](docs/architecture.md)
 

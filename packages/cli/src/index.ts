@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 
-import { GitAgentError, isGitAgentError, registerAll } from '@git-agent/core';
+import { GitAgentError, isGitAgentError, registerAll } from 'git-agent-core';
 
 import { EXIT, exitWith } from './exit.js';
 import { registerCommands } from './register-commands.js';

@@ -4,19 +4,35 @@
   "description": "基于 DeepSeek 的个人 Git 工作流工具箱 CLI",
   "type": "module",
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "bin": {
     "gat": "bin/git-agent.js",
-    "git-agent": "bin/git-agent.js"
+    "git-agent": "bin/git-agent.js",
+    "git-agent-toolkit": "bin/git-agent.js"
   },
   "files": [
     "dist",
     "bin"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tzy168/git-agent-toolkit.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/tzy168/git-agent-toolkit#readme",
+  "bugs": {
+    "url": "https://github.com/tzy168/git-agent-toolkit/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p ."
   },
   "dependencies": {
-    "@git-agent/core": "*",
+    "git-agent-core": "*",
     "commander": "^15.0.0",
     "picocolors": "^1.1.1"
   }

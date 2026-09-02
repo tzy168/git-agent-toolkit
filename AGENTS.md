@@ -8,7 +8,7 @@
 
 | 包 | 职责 |
 |---|---|
-| `@git-agent/core` | 全部业务。禁止 import vscode / DOM / 任何 UI API |
+| `git-agent-core` | 全部业务。禁止 import vscode / DOM / 任何 UI API |
 | `git-agent-toolkit`（CLI） | 薄壳：解析 argv、组 `FeatureContext`、交互、退出码。命令从 registry 自动生成 |
 
 运行时 Node ≥ 22，TypeScript **ESM + `module: NodeNext`**。相对 import **必须带 `.js` 后缀**（`import { x } from './foo.js'`）。构建是 `tsc` 直出 `dist`，不做 bundle。包管理器用 **npm**，不要引入 pnpm/yarn。

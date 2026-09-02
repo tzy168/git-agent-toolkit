@@ -1,4 +1,4 @@
-import { createGitProvider } from '@git-agent/core';
+import { createGitProvider } from 'git-agent-core';
 
 import { EXIT } from '../exit.js';
 

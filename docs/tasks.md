@@ -46,7 +46,7 @@ graph LR
 - `scripts/copy-assets.mjs` — 拷贝 `packages/core/prompts/` → `packages/core/dist/prompts/`（纯 Node，跨平台）
 
 **`packages/core` 包配置（2）**
-- `packages/core/package.json` — `@git-agent/core`，`"type":"module"`, `exports: ./dist/index.js`, `files:["dist"]`，`build: tsc -p . && node ../../scripts/copy-assets.mjs`
+- `packages/core/package.json` — `git-agent-core`，`"type":"module"`, `exports: ./dist/index.js`, `files:["dist"]`，`build: tsc -p . && node ../../scripts/copy-assets.mjs`
 - `packages/core/tsconfig.json`
 
 **`packages/core/src` 基础设施（14）**
@@ -102,7 +102,7 @@ graph LR
 ### 验收标准
 - [ ] `npm install` 在根目录一次装完两个 workspace（npm workspaces，无 pnpm-lock）。
 - [ ] `npm run build` 成功；`packages/core/dist/prompts/` 下能看到全部 `.md`。
-- [ ] `node -e "import('@git-agent/core')"` 不报错（或 `tsx` 下 `import('../src/index.ts')` 成功）。
+- [ ] `node -e "import('git-agent-core')"` 不报错（或 `tsx` 下 `import('../src/index.ts')` 成功）。
 - [ ] 单测覆盖：`config/loader`（四层合并顺序 + CLI 覆盖优先级）、`redact/rules`（每条正则有正反例）、`llm/budget`、`paths`（Windows 路径）。
 - [ ] 在**无 `DEEPSEEK_API_KEY`** 的情况下，`createLLMProvider()` 能建成、调用时才抛 `NO_API_KEY` 且 `hint` 有内容。
 - [ ] 全项目 `console.log` 只出现在 `output/writer.ts` 与 CLI 包内。
@@ -320,7 +320,7 @@ graph LR
 ## 全局收尾检查（T05 完成后）
 
 - [ ] 全项目**无** `deepseek-chat` / `deepseek-reasoner` 字符串。
-- [ ] `@git-agent/core` 的 `src/` 下**无** `vscode`、`document`、`window`、`React` 等 UI/DOM 相关 import（用 grep 扫一遍）。
+- [ ] `git-agent-core` 的 `src/` 下**无** `vscode`、`document`、`window`、`React` 等 UI/DOM 相关 import（用 grep 扫一遍）。
 - [ ] 除 `src/git/cli-provider.ts` 外，无任何文件 spawn 外部进程（除 `hooks install` 需要）。
 - [ ] 除 `commit` 命令外，无任何文件调用 `gitProvider.commit()` 或其他写操作。
 - [ ] 所有单文件 ≤ 250 行；`npm test` 全绿。

@@ -30,7 +30,15 @@
 
 ## 快速开始
 
-需要 **Node ≥ 22** 和 [DeepSeek API Key](https://platform.deepseek.com/)。
+需要 **Node ≥ 22** 和 [DeepSeek API Key](https://platform.deepseek.com/)。包发到 npm 之后：
+
+```bash
+npm i -g git-agent-toolkit
+# 或：pnpm i -g git-agent-toolkit
+# 一次性：npx git-agent-toolkit commit
+```
+
+在此之前从源码安装：
 
 ```bash
 git clone https://github.com/tzy168/git-agent-toolkit.git
@@ -101,7 +109,7 @@ packages/core    全部业务：git / diff / prompt / LLM / Feature
 cli → Feature.collect → pipeline(buildSteps → LLM → zod → reduce) → render → 落盘
 ```
 
-- `@git-agent/core` 禁止 import vscode / DOM / 任何 UI API
+- `git-agent-core` 禁止 import vscode / DOM / 任何 UI API
 - Feature 只声明 steps，自己不调 LLM；`pipeline.ts` 是唯一编排者
 - 接口签名与算法细节见 [`docs/architecture.md`](docs/architecture.md)
 

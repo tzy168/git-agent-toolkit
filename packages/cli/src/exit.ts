@@ -1,4 +1,4 @@
-import type { ExitCode } from '@git-agent/core';
+import type { ExitCode } from 'git-agent-core';
 
 export const EXIT = { OK: 0, ERR: 1, BLOCKER: 2, NO_DATA: 3 } as const;
 

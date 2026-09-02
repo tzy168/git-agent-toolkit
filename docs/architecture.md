@@ -62,7 +62,7 @@
 // packages/cli/package.json  dependencies
 "commander":     "^15.0.0",
 "picocolors":    "^1.1.1",
-"@git-agent/core": "*"      // workspace 内部依赖
+"git-agent-core": "*"       // workspace 内部依赖
 
 // 根 package.json  devDependencies
 "typescript":    "^5.9.3",
@@ -86,7 +86,7 @@
 ├───────────────────────────────────────────────────────────────┤
 │ prompt/  llm/  diff/  git/  cache/  config/  redact/  render/  output/ │  基础设施
 └───────────────────────────────────────────────────────────────┘
-        ↑ @git-agent/core 是纯 TS 包：禁止 import vscode / DOM / 任何 UI 相关 API
+        ↑ git-agent-core 是纯 TS 包：禁止 import vscode / DOM / 任何 UI 相关 API
 ```
 
 ---
@@ -111,7 +111,7 @@
 
 | 路径 | 职责 | 主要导出 |
 |---|---|---|
-| `package.json` | 包名 `@git-agent/core`；`bin` 无；`exports` 指向 `dist/index.js`；`files: ["dist"]` | — |
+| `package.json` | 包名 `git-agent-core`；`bin` 无；`exports` 指向 `dist/index.js`；`files: ["dist"]`；`publishConfig.access: public` | — |
 | `tsconfig.json` | 继承 base，`rootDir: src`, `outDir: dist` | — |
 | `src/index.ts` | 统一出口：类型 + 工厂 + registry | 重导出全部公共 API |
 | `src/types.ts` | 全局共享类型：`RepoInfo` / `ProgressEvent` / `Logger` / `ExitCode` 等（见 §3.1） | types |
@@ -223,7 +223,7 @@
 
 | 路径 | 职责 | 主要导出 |
 |---|---|---|
-| `package.json` | 包名 `git-agent-toolkit`，`bin: { "git-agent": "bin/git-agent.js" }` | — |
+| `package.json` | 包名 `git-agent-toolkit`，`bin: gat / git-agent / git-agent-toolkit` → `bin/git-agent.js`；`publishConfig.access: public` | — |
 | `tsconfig.json` | 继承 base，`outDir: dist` | — |
 | `bin/git-agent.js` | 3 行 shebang 入口：`#!/usr/bin/env node` + `import('../dist/index.js').then(m => m.main())` | — |
 | `src/index.ts` | 主入口：建 ctx → 注册命令（从 registry 自动生成）→ 解析 argv → 派发 → 退出码 | `main()` |
